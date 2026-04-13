@@ -1,23 +1,13 @@
-// Neshnabé Connect | Wolf Flow Solutions LLC 2026
+// Neshnabe Connect | Wolf Flow Solutions LLC 2026
 
-import 'react-native-url-polyfill/auto';
 import { createClient } from '@supabase/supabase-js';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { Platform } from 'react-native';
 
-const supabaseUrl = 'https://uvqspbqozqvlcsjeodmv.supabase.co';
-const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InV2cXNwYnFvenF2bGNzamVvZG12Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYwNDgwNzksImV4cCI6MjA5MTYyNDA3OX0.d1b2SUzkBs0ANbWnna2Eo_FLhbdgTgYu6jkxN156dUk';
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://uvqspbqozqvlcsjeodmv.supabase.co';
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InV2cXNwYnFvenF2bGNzamVvZG12Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYwNDgwNzksImV4cCI6MjA5MTYyNDA3OX0.d1b2SUzkBs0ANbWnna2Eo_FLhbdgTgYu6jkxN156dUk';
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
-  auth: {
-    storage: Platform.OS !== 'web' ? AsyncStorage : undefined,
-    autoRefreshToken: true,
-    persistSession: true,
-    detectSessionInUrl: false,
-  },
-});
+export const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
-// Type definitions for database tables
+// Type definitions
 export interface Member {
   id: string;
   auth_id: string;
@@ -75,13 +65,6 @@ export interface Event {
   is_featured: boolean;
 }
 
-export interface EventRsvp {
-  id: string;
-  event_id: string;
-  member_id: string;
-  status: 'attending' | 'maybe' | 'declined';
-}
-
 export interface CommunityPost {
   id: string;
   type: 'spotlight' | 'commemoration' | 'business' | 'blog' | 'announcement';
@@ -113,14 +96,34 @@ export interface Staff {
   role: string;
   title: string;
   department?: Department;
-  member?: Member;
 }
 
-export interface Notification {
-  id: string;
-  member_id: string;
-  type: string;
-  title: string;
-  body: string;
-  is_read: boolean;
+// Utility functions
+export function getGreeting(): { potawatomi: string; english: string } {
+  const hour = new Date().getHours();
+  if (hour >= 4 && hour < 12) return { potawatomi: 'Waben', english: 'Good Morning' };
+  if (hour >= 12 && hour < 18) return { potawatomi: 'Nawkwek', english: 'Good Afternoon' };
+  if (hour >= 18 && hour < 22) return { potawatomi: 'Nakwshe', english: 'Good Evening' };
+  return { potawatomi: 'Pkonya', english: 'Good Night' };
+}
+
+export function getDepartmentEmoji(name: string): string {
+  const emojis: Record<string, string> = {
+    'Housing': '🏠',
+    'Health': '🏥',
+    'Health & Human Services': '🏥',
+    'Finance': '💰',
+    'Culture': '🪶',
+    'Language & Culture': '🪶',
+    'Education': '🎓',
+    'Police': '🛡️',
+    'Tribal Police': '🛡️',
+    'Social Services': '🤲',
+    'Environmental': '🌿',
+    'IT': '💻',
+    'Enrollment': '📋',
+    'Elders': '👴',
+    'Youth': '⭐',
+  };
+  return emojis[name] || '📋';
 }
